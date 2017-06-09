@@ -60,7 +60,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// <summary>
         /// Radius of drawn hand circles
         /// </summary>
-        private const double HandSize = 70;
+        private const double HandSize = 100;
 
         /// <summary>
         /// Thickness of drawn joint lines
@@ -600,8 +600,9 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// <param name="drawingContext">drawing context to draw to</param>
         private void DrawHand(HandState handState, Point handPosition, CameraSpacePoint positionHandZ, DrawingContext drawingContext)
         {
+            textBox.Text = "Z: " + positionHandZ.Z;
             drawingContext.DrawRectangle(null, new Pen(Brushes.Red, 5), 
-                new Rect(handPosition.X - (30 + positionHandZ.Z), handPosition.Y - (30 + positionHandZ.Z), HandSize + positionHandZ.Z, HandSize + positionHandZ.Z));
+                new Rect(handPosition.X - ((HandSize - (positionHandZ.Z * 25))/2), handPosition.Y - ((HandSize - (positionHandZ.Z * 25))/2), HandSize - (positionHandZ.Z*25), HandSize - (positionHandZ.Z*25)));
             //switch (handState)
             //{
             //    case HandState.Closed:
@@ -617,7 +618,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             //        break;
             //}
         }
-
+        
         /// <summary>
         /// Draws indicators to show which edges are clipping body data
         /// </summary>
