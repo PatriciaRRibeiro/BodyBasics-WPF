@@ -60,7 +60,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// <summary>
         /// Radius of drawn hand circles
         /// </summary>
-        private const double HandSize = 30;
+        private const double HandSize = 70;
 
         /// <summary>
         /// Thickness of drawn joint lines
@@ -217,12 +217,12 @@ namespace Microsoft.Samples.Kinect.BodyBasics
             // populate body colors, one for each BodyIndex
             this.bodyColors = new List<Pen>();
 
-            this.bodyColors.Add(new Pen(Brushes.Red, 6));
-            this.bodyColors.Add(new Pen(Brushes.Orange, 6));
-            this.bodyColors.Add(new Pen(Brushes.Green, 6));
-            this.bodyColors.Add(new Pen(Brushes.Blue, 6));
-            this.bodyColors.Add(new Pen(Brushes.Indigo, 6));
-            this.bodyColors.Add(new Pen(Brushes.Violet, 6));
+            this.bodyColors.Add(new Pen(Brushes.Red, 4));
+            this.bodyColors.Add(new Pen(Brushes.Orange, 4));
+            this.bodyColors.Add(new Pen(Brushes.Green, 4));
+            this.bodyColors.Add(new Pen(Brushes.Blue, 4));
+            this.bodyColors.Add(new Pen(Brushes.Indigo, 4));
+            this.bodyColors.Add(new Pen(Brushes.Violet, 4));
 
             // set IsAvailableChanged event notifier
             this.kinectSensor.IsAvailableChanged += this.Sensor_IsAvailableChanged;
@@ -263,7 +263,16 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 //return this.depthBitmap;
             }
         }
-        
+
+        public ImageSource DepthBitmap
+        {
+            get
+            {
+                //return this.imageSource;
+                return this.depthBitmap;
+            }
+        }
+
         /// <summary>
         /// Gets or sets the current status text to display
         /// </summary>
@@ -363,7 +372,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                 using (DrawingContext dc = this.drawingGroup.Open())
                 {
                     // Draw a transparent background to set the render size
-                    dc.DrawRectangle(Brushes.Black, null, new Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
+                    dc.DrawRectangle(Brushes.Transparent, null, new Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
 
                     int penIndex = 0;
                     foreach (Body body in this.bodies)
@@ -378,7 +387,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
 
                             // convert the joint points to depth (display) space
                             Dictionary<JointType, Point> jointPoints = new Dictionary<JointType, Point>();
-
+                            CameraSpacePoint positionHandZ = joints[JointType.HandRight].Position;
                             foreach (JointType jointType in joints.Keys)
                             {
                                 // sometimes the depth(Z) of an inferred joint may show as negative
@@ -396,7 +405,7 @@ namespace Microsoft.Samples.Kinect.BodyBasics
                             this.DrawBody(joints, jointPoints, dc, drawPen);
 
                             //this.DrawHand(body.HandLeftState, jointPoints[JointType.HandLeft], dc);
-                            this.DrawHand(body.HandRightState, jointPoints[JointType.HandRight], dc);
+                            this.DrawHand(body.HandRightState, jointPoints[JointType.HandRight], positionHandZ, dc);
                         }
                     }
 
@@ -589,23 +598,24 @@ namespace Microsoft.Samples.Kinect.BodyBasics
         /// <param name="handState">state of the hand</param>
         /// <param name="handPosition">position of the hand</param>
         /// <param name="drawingContext">drawing context to draw to</param>
-        private void DrawHand(HandState handState, Point handPosition, DrawingContext drawingContext)
+        private void DrawHand(HandState handState, Point handPosition, CameraSpacePoint positionHandZ, DrawingContext drawingContext)
         {
-            drawingContext.DrawRectangle(null, new Pen(Brushes.Red, 5), new Rect(handPosition, new Size(HandSize, HandSize)));
-            switch (handState)
-            {
-                case HandState.Closed:
-                    drawingContext.DrawEllipse(this.handClosedBrush, null, handPosition, HandSize, HandSize);
-                    break;
+            drawingContext.DrawRectangle(null, new Pen(Brushes.Red, 5), 
+                new Rect(handPosition.X - (30 + positionHandZ.Z), handPosition.Y - (30 + positionHandZ.Z), HandSize + positionHandZ.Z, HandSize + positionHandZ.Z));
+            //switch (handState)
+            //{
+            //    case HandState.Closed:
+            //        drawingContext.DrawEllipse(this.handClosedBrush, null, handPosition, HandSize, HandSize);
+            //        break;
 
-                case HandState.Open:
-                    drawingContext.DrawEllipse(this.handOpenBrush, null, handPosition, HandSize, HandSize);
-                    break;
+            //    case HandState.Open:
+            //        drawingContext.DrawEllipse(this.handOpenBrush, null, handPosition, HandSize, HandSize);
+            //        break;
 
-                case HandState.Lasso:
-                    drawingContext.DrawEllipse(this.handLassoBrush, null, handPosition, HandSize, HandSize);
-                    break;
-            }
+            //    case HandState.Lasso:
+            //        drawingContext.DrawEllipse(this.handLassoBrush, null, handPosition, HandSize, HandSize);
+            //        break;
+            //}
         }
 
         /// <summary>
